@@ -43,6 +43,20 @@ function User() {
   if (data.role === undefined) errorHandling()
   if (data.role !== 'USER') errorHandling()
 
+  if (data.boarding_bus.name === null) {
+    alert('버스 정보를 찾을 수 없습니다.')
+    window.location.href = '/'
+
+    return
+  }
+
+  if (data.destination_stop === null) {
+    alert('도착 정류장 정보를 찾을 수 없습니다.')
+    window.location.href = '/'
+
+    return
+  }
+
   
   function generateOTP(otpauthURL: string): void {
     if (!otpauthURL || otpauthURL === '') return console.error('otpauthURL is not defined')
