@@ -54,7 +54,7 @@ function CustomCard ({ titleText, resourceName, actionButtons, FILTERING_PROPERT
           actions.setPropertyFiltering({ tokens: [], operation: 'and' })
         }} />,
       },
-      pagination: { pageSize: 30 },
+      pagination: { pageSize: 32 },
       selection: {}
     }
   )
