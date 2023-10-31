@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://172.28.32.222:8000/api',
+        target: 'https://bus.gbsw.hs.kr/api',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       },
