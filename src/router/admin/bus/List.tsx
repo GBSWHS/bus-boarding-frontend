@@ -45,17 +45,23 @@ const FILTERING_PROPERTIES: PropertyFilterProperty[] = [
   }
 ]
 
-const data: BusListType[] = Array(100).fill(0).map((_, index) => {
-  return {
-    id: index,
-    name: '버스 ' + index,
-    description: '버스 ' + index + ' 설명',
-    userCount: 20,
-    enterUserCount: Math.floor(Math.random() * 20)
-  }
-})
-
 function BusList() {
+  const [data, setData] = useState<BusListType[]>([])
+
+  useEffect(() => {
+    (async () => {
+      const data = await fetch('/api/bus/', {
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("access_token")
+        }
+      }).then((res) => res.json())
+
+      setData(data)
+
+    })()
+  }, []);
+
+
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedItems, setSelectedItems] = useState<UserListType[]>([])
 
