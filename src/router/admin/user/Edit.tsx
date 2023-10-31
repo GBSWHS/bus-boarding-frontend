@@ -1,9 +1,8 @@
 import "@cloudscape-design/global-styles/index.css"
 import { CustomAppLayout } from "../../../components/admin/CustomLayout"
 import { BreadcrumbGroup, ContentLayout, SpaceBetween, Form, Button, Header, Container, FormField, Select, Input } from "@cloudscape-design/components"
-import UserType from "../../../interfaces/UserType"
 
-function UserEdit(user: UserType) {
+function UserEdit() {
   const studentName = 'test'
 
   return (

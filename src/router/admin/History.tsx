@@ -8,7 +8,6 @@ import { PropertyFilterProperty } from "@cloudscape-design/collection-hooks"
 import useNotifications from "../../hooks/useNotifications"
 import moment from 'moment'
 import HistoryListType from "../../interfaces/HistoryListType"
-import UserType from "../../interfaces/UserType"
 
 const COLUMN_DEFINATIONS: TableProps.ColumnDefinition<HistoryListType>[] = [
   {
@@ -146,10 +145,10 @@ const useSplitPanel = (selectedItem?: HistoryListType) => {
   };
 };
 
-function HistoryList(user: UserType) {
+function HistoryList() {
   const [selectedItems, setSelectedItems] = useState<HistoryListType[]>([])
 
-  const { clearFailed, notifications, notifyDeleted, notifyInProgress } = useNotifications({
+  const { notifications } = useNotifications({
     resourceName: '탑승'
   })
 

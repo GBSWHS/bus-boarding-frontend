@@ -122,9 +122,9 @@ const data: UserListType[] = tempData.map(item => {
     station: item.destination?.name ?? '',
     stationId: item.destination?.id ?? ''
   }
-})
+}) as UserListType[]
 
-function UserList(user: UserType) {
+function UserList() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedItems, setSelectedItems] = useState<UserListType[]>([])
 

@@ -6,10 +6,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBus, faHome, faUser, faXmark } from '@fortawesome/free-solid-svg-icons'
 import Modal from 'react-modal'
 import useSWR from 'swr'
-import UserType from '../interfaces/UserType'
 
 const fetcher = (url: string) => fetch(url, { headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token') ?? ''}` } }).then(async (res) => await res.json())
-function Manager(user: UserType) {
+function Manager() {
   if (!localStorage.getItem('access_token')) window.location.href = '/'
   const { data, error, isLoading } = useSWR('/api/user/me', fetcher)
   const [qrData, setQRData] = useState<string>('')

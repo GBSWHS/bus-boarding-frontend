@@ -66,7 +66,7 @@ const tempData: UserType[] = [
   }
 ]
 
-function BusCreate(user: UserType) {
+function BusCreate() {
   const [selectedItems, setSelectedItems] = useState<UserType[]>([])
   return (
     <>

@@ -3,9 +3,8 @@ import { CustomAppLayout } from "../../../components/admin/CustomLayout"
 import { BreadcrumbGroup, ContentLayout, SpaceBetween, Form, Button, Header, Container, FormField, Input } from "@cloudscape-design/components"
 import DaumPostcodeEmbed from 'react-daum-postcode'
 import { useState } from "react"
-import UserType from "../../../interfaces/UserType"
 
-function StationCreate(user: UserType) {
+function StationCreate() {
   const [location, setLocation] = useState<string | null>(null)
   const handleComplete = (data: { address: string, addressType: 'R' | 'J', bname: string, buildingName: string }) => {
     let fullAddress = data.address

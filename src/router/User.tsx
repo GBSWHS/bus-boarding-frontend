@@ -6,10 +6,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBus, faHome } from '@fortawesome/free-solid-svg-icons'
 import useSWR from 'swr'
 import toast from 'react-hot-toast'
-import UserType from '../interfaces/UserType'
 
 const fetcher = (url: string) => fetch(url, { headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token') ?? ''}` } }).then(async (res) => await res.json())
-function User(user: UserType) {
+function User() {
   if (!localStorage.getItem('access_token')) window.location.href = '/'
   if (!localStorage.getItem('totp_secret')) window.location.href = '/'
   const { data, error, isLoading } = useSWR('/api/user/me', fetcher)

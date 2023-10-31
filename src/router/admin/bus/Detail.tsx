@@ -137,7 +137,7 @@ const data: UserListType[] = tempData.map(item => {
   }
 })
 
-function BusDetail(user: UserType) {
+function BusDetail() {
   const studentName = 'test'
   const { busId } = useParams()
 

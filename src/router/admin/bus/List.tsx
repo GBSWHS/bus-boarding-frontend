@@ -8,7 +8,6 @@ import UserListType from "../../../interfaces/UserListType"
 import useNotifications from "../../../hooks/useNotifications"
 import CustomCard from "../../../components/admin/CustomCard"
 import BusListType from "../../../interfaces/BusListType"
-import UserType from "../../../interfaces/UserType"
 
 const COLUMN_DEFINATIONS: CardsProps.CardDefinition<BusListType> = {
   header: item => <Link to={`/admin/bus/` + item.id}>{item.name}</Link>,
@@ -56,7 +55,7 @@ const data: BusListType[] = Array(100).fill(0).map((_, index) => {
   }
 })
 
-function BusList(user: UserType) {
+function BusList() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedItems, setSelectedItems] = useState<UserListType[]>([])
 

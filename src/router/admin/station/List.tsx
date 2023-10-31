@@ -8,7 +8,6 @@ import UserListType from "../../../interfaces/UserListType"
 import useNotifications from "../../../hooks/useNotifications"
 import CustomCard from "../../../components/admin/CustomCard"
 import StationListType from "../../../interfaces/StationListType"
-import UserType from "../../../interfaces/UserType"
 
 const COLUMN_DEFINATIONS: CardsProps.CardDefinition<StationListType> = {
   header: item => <Link to={`/admin/station/` + item.id}>{item.name}</Link>,
@@ -44,7 +43,7 @@ const data: StationListType[] = Array(100).fill(0).map((_, index) => {
   }
 })
 
-function StationList(user: UserType) {
+function StationList() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedItems, setSelectedItems] = useState<UserListType[]>([])
 

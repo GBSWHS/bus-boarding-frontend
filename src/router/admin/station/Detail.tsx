@@ -4,9 +4,8 @@ import { BreadcrumbGroup, ContentLayout, SpaceBetween, Button, Header, ColumnLay
 import { useParams } from "react-router-dom"
 import { Map, MapMarker } from 'react-kakao-maps-sdk'
 import { useState, useEffect, ReactNode } from "react"
-import UserType from "../../../interfaces/UserType"
 
-function StationDetail(user: UserType) {
+function StationDetail() {
   const studentName = 'test'
   const { stationId } = useParams()
   const [map, setMap] = useState<kakao.maps.Map>()
