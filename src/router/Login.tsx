@@ -16,7 +16,8 @@ function Login() {
   }
 
   useEffect(() => {
-    localStorage.clear()
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('totp_secret')
   }, [])
 
   const onSubmit = async (e: FormEvent) => {
@@ -55,11 +56,12 @@ function Login() {
       return
     }
 
-    const { access_token, type } = await res.json()
+    const response = await res.json()
     toast.success('로그인 성공!')
-    localStorage.setItem('access_token', access_token)
+    localStorage.setItem('access_token', response.access_token)
+    if (response.type === 'USER') localStorage.setItem('totp_secret', response.totp_secret)
 
-    return navigation(type === 'USER' ? '/user' : type === 'BUS_ADMIN' ? '/manager' : '/admin')
+    return navigation(response.type === 'USER' ? '/user' : response.type === 'BUS_ADMIN' ? '/manager' : '/admin')
   }
 
   return (

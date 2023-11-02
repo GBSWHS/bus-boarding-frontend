@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { QrReader } from 'react-qr-reader'
 import { toast } from 'react-hot-toast'
 import Container from '../components/Container'
@@ -9,12 +9,79 @@ import useSWR from 'swr'
 import { fetcher } from '../common/fetcher'
 import { useNavigate } from 'react-router-dom'
 
+const headers ={
+  'Authorization': `Bearer ${localStorage.getItem('access_token') ?? ''}`
+}
+
+interface UserResponseType {
+  id: number,
+  student_id: number,
+  name: string,
+  phone_number: string,
+  role: 'BUS_ADMIN' | 'USER' | 'ADMINISTRATOR',
+}
+
+interface RecordsResponseType {
+  id: number,
+  user_id: number,
+  boarding_bus_id: number,
+  destination_stop_id: number,
+  time_created: Date
+}
+
+interface BoardingType {
+  id: number,
+  student_id: number,
+  name: string,
+  phone_number: string,
+  boarding: boolean
+}
+
 function Manager() {
   const navigate = useNavigate()
   if (!localStorage.getItem('access_token')) navigate('/')
   const { data, error, isLoading } = useSWR('/api/user/me', fetcher)
   const [qrData, setQRData] = useState<string>('')
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [boardingUsers, setBoardingUsers] = useState<BoardingType[]>([])
+  const [isModalLoading, setIsModalLoading] = useState<boolean>(false)
+  const [destinationName, setDestinationName] = useState<string>('로딩중')
+
+  const getBusUsers = useCallback(async () => {
+    if (!data) return
+    const busId = data.boarding_bus.id
+    const adminId = data.id
+
+    const records = await fetch('/api/bus/' + busId + '/records', { headers })
+    const users = await fetch('/api/bus/' + busId + '/users', { headers })
+
+    if (records.status !== 200 || users.status !== 200) {
+      toast.error('서버 오류 발생')
+      return
+    }
+
+    const recordsJson = await records.json()
+    const usersJson = await users.json()
+
+    const boardingUsers = usersJson.map((user: UserResponseType): BoardingType => {
+      const record = !!recordsJson.find((record: RecordsResponseType) => record.user_id === user.id)
+      return {
+        id: user.id,
+        student_id: user.student_id,
+        name: user.name,
+        phone_number: user.phone_number,
+        boarding: adminId === user.id ? true : record
+      }
+    })
+
+    boardingUsers.sort((a: BoardingType, b: BoardingType) => {
+      if (a.boarding === b.boarding) return a.student_id - b.student_id
+      return a.boarding ? -1 : 1
+    })
+    
+    setBoardingUsers(boardingUsers)
+    return boardingUsers
+  }, [data])
 
   const qrDataHandler = async (data: string | null) => {
     if (data === null) return
@@ -29,36 +96,44 @@ function Manager() {
     if (response.status !== 200) {
       try {
         const responseBody = await response.json()
-        toast.error(responseBody.message,
-          {
-            duration: 3000,
-            icon: '❌',
-            style: {
-              borderRadius: '10px',
-              background: '#300',
-              color: '#fff',
-            }
-          }
-        )
+        toast.error(responseBody.message)
       } catch {
-        toast.error('서버 오류 발생',
-          {
-            duration: 3000,
-            icon: '❌',
-            style: {
-              borderRadius: '10px',
-              background: '#300',
-              color: '#fff',
-            }
-          }
-        )
+        toast.error('서버 오류 발생')
       }
     }
 
-    const responseBody = await response.json()
-    console.log(responseBody)
+    const responseBody: RecordsResponseType = await response.json()
+    // toast.success(responseBody.)
 
+    console.log(responseBody)
   }
+
+  const getDestinationName = useCallback(async() => {
+    if (!data) return
+    const busResponse = await fetch('/api/bus/' + data.boarding_bus.id , { headers })
+    if (busResponse.status !== 200) {
+      toast.error('서버 오류 발생')
+      return
+    }
+    
+    const busResponseBody = await busResponse.json()
+    const destinationResponse = await fetch('/api/stops/' + busResponseBody.destination, { headers })
+    if (destinationResponse.status !== 200) {
+      toast.error('서버 오류 발생')
+      return
+    }
+
+    const destinationResponseBody = await destinationResponse.json()
+    setDestinationName(destinationResponseBody.name)
+
+    return destinationName
+  }, [data, destinationName])
+  
+  useEffect(() => {
+    if (!data) return
+    getBusUsers()
+    getDestinationName()
+  }, [data, getBusUsers, getDestinationName])
 
   useEffect(() => {
     if (qrData === '') return
@@ -122,23 +197,36 @@ function Manager() {
   if (data.role === undefined) errorHandling()
   if (data.role !== 'BUS_ADMIN') errorHandling()
 
-  const onBusStart = () => {
-    if (!confirm('정말 버스를 출발할까요?')) return
-
-    toast.success('수고하셨습니다!', { duration: 3000, icon: '🌸'})
-    return
-  }
-
   const afterModalOpen = () => {
-    toast.success('모달 열림')
+    if (!data) {
+      setIsModalOpen(false)
+      return
+    }
+    getBusUsers()
   }
 
   const modalClose = () => {
+    getBusUsers()
     setIsModalOpen(false)
   }
 
   const modalOpen = () => {
     setIsModalOpen(true)
+  }
+
+  const setFilter = async (filter: 'all' | 'boarding' | 'not_boarding') => {
+    if (!data) return
+    setIsModalLoading(true)
+    if (filter === 'all') {
+      getBusUsers()
+      setIsModalLoading(false)
+      return
+    }
+
+    const boardingUserData = await getBusUsers()
+    const filteredUsers = boardingUserData.filter((user: BoardingType) => filter === 'boarding' ? user.boarding === true : user.boarding === false)
+    setBoardingUsers(filteredUsers)
+    setIsModalLoading(false)
   }
 
   return (
@@ -155,26 +243,22 @@ function Manager() {
               }
             }}
             videoStyle={{ position: 'static', objectFit: 'cover', borderRadius: '5px', height: '100%' }}
-            videoContainerStyle={{ height: '25vh', position: 'static', width: '100%', paddingTop: '0' }}
+            videoContainerStyle={{ height: '40vh', position: 'static', width: '100%', paddingTop: '0' }}
             scanDelay={500}
             className='mt-4'
           ></QrReader>
           <hr className="h-px my-3 bg-gray-100 border-1 dark:bg-gray-200"></hr>
-          <div className='flex justify-between'>
+          <div className='flex justify-between px-10'>
             <div className='flex flex-col mt-3 gap-1'>
-              <label className='font-bold'><FontAwesomeIcon icon={faHome} /> 목적지</label>
-              <span className='py-1'>동대구</span>
+              <label className='font-bold text-center'><FontAwesomeIcon icon={faHome} /> 목적지</label>
+              <span className='py-1 text-center'>{destinationName}</span>
             </div>
             <div className='flex flex-col mt-3 gap-1'>
-              <label className='font-bold'><FontAwesomeIcon icon={faUser} /> 탑승자 수</label>
-              <span className='py-1'>20명 / 32명</span>
-            </div>
-            <div className='flex flex-col mt-3 gap-1'>
-              <label className='font-bold'><FontAwesomeIcon icon={faUser} /> 인원 목록</label>
-              <button onClick={modalOpen} className='bg-blue-400 hover:bg-blue-300 text-white font-bold py-1 rounded-lg hover:shadow-lg w-full transition-all'>목록</button>
+              <label className='font-bold text-center'><FontAwesomeIcon icon={faUser} /> 탑승자 수</label>
+              <span className='py-1 text-center'>{boardingUsers.filter(user => user.boarding).length}명 / {boardingUsers.length}명</span>
             </div>
           </div>
-          <button onClick={onBusStart} className='bg-green-500 hover:bg-green-400 text-white font-bold py-2 rounded-lg hover:shadow-lg mt-5 w-full transition-all'><FontAwesomeIcon icon={faBus}></FontAwesomeIcon> 출발 확인</button>
+          <button onClick={modalOpen} className='bg-green-500 hover:bg-green-400 text-white font-bold py-2 rounded-lg hover:shadow-lg mt-5 w-full transition-all'><FontAwesomeIcon icon={faBus}></FontAwesomeIcon> 인원 목록</button>
         </div>
       </Container>
       <Modal
@@ -198,9 +282,9 @@ function Manager() {
             <button onClick={modalClose}><FontAwesomeIcon className='text-2xl hover:rotate-6 transform-gpu' icon={faXmark}></FontAwesomeIcon></button>
           </div>
           <div className='flex justify-between mt-3 gap-2'>
-            <button className='bg-blue-500 hover:bg-blue-400 text-white font-bold py-1 rounded-sm hover:shadow-lg w-full transition-all'>전체</button>
-            <button className='bg-blue-500 hover:bg-blue-400 text-white font-bold py-1 rounded-sm hover:shadow-lg w-full transition-all'>미탑승</button>
-            <button className='bg-blue-500 hover:bg-blue-400 text-white font-bold py-1 rounded-sm hover:shadow-lg w-full transition-all'>탑승</button>
+            <button className='bg-blue-500 hover:bg-blue-400 text-white font-bold py-1 rounded-sm hover:shadow-lg w-full transition-all' onClick={() => setFilter('all')}>전체</button>
+            <button className='bg-blue-500 hover:bg-blue-400 text-white font-bold py-1 rounded-sm hover:shadow-lg w-full transition-all' onClick={() => setFilter('not_boarding')}>미탑승</button>
+            <button className='bg-blue-500 hover:bg-blue-400 text-white font-bold py-1 rounded-sm hover:shadow-lg w-full transition-all' onClick={() => setFilter('boarding')}>탑승</button>
           </div> 
           <hr className="h-px my-3 bg-gray-100 border-0 dark:bg-gray-200"></hr>
 
@@ -215,14 +299,14 @@ function Manager() {
                 </tr>
               </thead>
               <tbody className='text-center'>
-                {Array(40).fill(0).map((_, i) => (
+                {!isModalLoading ? boardingUsers.map((data, i) => (
                   <tr key={i} className='mt-1'>
-                    <td>31{i}</td>
-                    <td>임태현</td>
-                    <td>01012345678</td>
-                    <td>탑승</td>
+                    <td>{data.student_id}</td>
+                    <td>{data.name}</td>
+                    <td><a href={"tel:" + data.phone_number}>{data.phone_number}</a></td>
+                    <td>{data.boarding ? '탑승' : '미탑승' }</td>
                   </tr>
-                ))}
+                )) : <tr>로딩 중...</tr>}
               </tbody>
             </table>
           </div>
