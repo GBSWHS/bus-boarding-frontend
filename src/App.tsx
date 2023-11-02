@@ -1,10 +1,8 @@
-import { Routes, Route, BrowserRouter } from 'react-router-dom'
+import { Routes, Route, BrowserRouter, Navigate } from 'react-router-dom'
 import Login from './router/Login'
 import User from './router/User'
 import Manager from './router/Manager'
-import { Toaster } from 'react-hot-toast'
 import { useEffect } from 'react'
-import AdminIndex from './router/admin/Index'
 import BusList from './router/admin/bus/List'
 import UserList from './router/admin/user/List'
 import UserCreate from './router/admin/user/Create'
@@ -34,14 +32,13 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Toaster position='top-center' />
       <Routes>
         <Route path='/' element={<Login />} />
         <Route path='/manager' element={<AuthProvider type='BUS_ADMIN'><Manager /></AuthProvider>} />
         <Route path='/user' element={<AuthProvider type='USER'><User /></AuthProvider>} />
         
           <Route path='/admin'>
-            <Route path='' element={<AuthProvider type='ADMINISTRATOR'><AdminIndex /></AuthProvider>} />
+            <Route path='' element={<Navigate replace to="/home" />} />
             
             <Route path='bus' element={<AuthProvider type="ADMINISTRATOR"><BusList /></AuthProvider>} />
             <Route path='bus/create' element={<AuthProvider type="ADMINISTRATOR"><BusCreate /></AuthProvider>} />

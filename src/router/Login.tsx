@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from 'react'
 import Container from '../components/Container'
 import logo from './../assets/logo.png'
 import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 
 function Login() {
   const [type, setType] = useState<'student' | 'teacher'>('student')
@@ -9,6 +10,7 @@ function Login() {
   const [name, setName] = useState<string>('')
   const [phone, setPhone] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const navigation = useNavigate()
   const switchType = () => {
     setType(type === 'student' ? 'teacher' : 'student')
   }
@@ -22,56 +24,25 @@ function Login() {
 
     if (type === 'student') {
       if (!studentId || !name || !phone) {
-        toast.error('모든 항목을 입력해주세요.',
-          {
-            duration: 3000,
-            icon: '❌',
-            style: {
-              borderRadius: '10px',
-              background: '#300',
-              color: '#fff',
-            }
-          }
-        )
+        toast.error('모든 항목을 입력해주세요.')
         return
       }
-      const res = await fetch('/api/user/login', {
+      const res = await fetch('/api/auth/user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           student_id: studentId,
           phone_number: phone,
           name,
-          password: 'dummy'
         })
       })
       
       if (res.status !== 200) {
         try {
           const responseBody = await res.json()
-          toast.error(responseBody.detail,
-            {
-              duration: 3000,
-              icon: '❌',
-              style: {
-                borderRadius: '10px',
-                background: '#300',
-                color: '#fff',
-              }
-            }
-          )
+          toast.error(responseBody.detail)
         } catch {
-          toast.error('서버 오류 발생',
-            {
-              duration: 3000,
-              icon: '❌',
-              style: {
-                borderRadius: '10px',
-                background: '#300',
-                color: '#fff',
-              }
-            }
-          )
+          toast.error('서버 오류 발생')
         }
         return
       }
@@ -81,59 +52,26 @@ function Login() {
       localStorage.setItem('access_token', access_token)
       localStorage.setItem('totp_secret', totp_secret)
 
-      window.location.href = type === 'USER' ? '/user' : type === 'BUS_ADMIN' ? '/manager' : '/admin'
+      return navigation(type === 'USER' ? '/user' : type === 'BUS_ADMIN' ? '/manager' : '/admin')
     } else {
       if (!password) {
-        toast.error('모든 항목을 입력해주세요.',
-          {
-            duration: 3000,
-            icon: '❌',
-            style: {
-              borderRadius: '10px',
-              background: '#300',
-              color: '#fff',
-            }
-          }
-        )
+        toast.error('모든 항목을 입력해주세요.')
         return
       }
-      const res = await fetch('/api/user/login', {
+      const res = await fetch('/api/auth/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          password,
-          phone_number: 'dummy',
-          name: 'dummy',
-          student_id: 'dummy'
+          password
         })
       })
       
       if (res.status !== 200) {
         try {
           const responseBody = await res.json()
-          toast.error(responseBody.detail,
-            {
-              duration: 3000,
-              icon: '❌',
-              style: {
-                borderRadius: '10px',
-                background: '#300',
-                color: '#fff',
-              }
-            }
-          )
+          toast.error(responseBody.detail)
         } catch {
-          toast.error('서버 오류 발생',
-            {
-              duration: 3000,
-              icon: '❌',
-              style: {
-                borderRadius: '10px',
-                background: '#300',
-                color: '#fff',
-              }
-            }
-          )
+          toast.error('서버 오류 발생')
         }
         
         // window.location.reload()
@@ -144,7 +82,7 @@ function Login() {
       toast.success('로그인 성공!')
       localStorage.setItem('access_token', access_token)
 
-      window.location.href = type === 'USER' ? '/user' : type === 'BUS_ADMIN' ? '/manager' : '/admin'
+      return navigation(type === 'USER' ? '/user' : type === 'BUS_ADMIN' ? '/manager' : '/admin')
     }
   }
 

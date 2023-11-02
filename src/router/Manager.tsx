@@ -7,6 +7,7 @@ import { faBus, faHome, faUser, faXmark } from '@fortawesome/free-solid-svg-icon
 import Modal from 'react-modal'
 import useSWR from 'swr'
 import { fetcher } from '../common/fetcher'
+import { redirect } from 'react-router-dom'
 
 function Manager() {
   if (!localStorage.getItem('access_token')) window.location.href = '/'
@@ -98,7 +99,6 @@ function Manager() {
     // )
   }, [qrData])
 
-  // if data is loaded fetch /api/bus/id
   useEffect(() => {
     if (!data) return
     console.log(data)
@@ -111,18 +111,8 @@ function Manager() {
   }, [data])
 
   function errorHandling () {
-    toast.error('서버 오류 발생',
-      {
-        duration: 3000,
-        icon: '❌',
-        style: {
-          borderRadius: '10px',
-          background: '#300',
-          color: '#fff',
-        }
-      }
-    )
-    window.location.href = '/'
+    toast.error('서버 오류 발생')
+    redirect('/')
   }
 
   if (isLoading) return <Container>Loading...</Container>
@@ -134,17 +124,7 @@ function Manager() {
   const onBusStart = () => {
     if (!confirm('정말 버스를 출발할까요?')) return
 
-    toast.success('수고하셨습니다!',
-      {
-        duration: 3000,
-        icon: '🌸',
-        style: {
-          borderRadius: '10px',
-          background: '#393',
-          color: '#fff',
-        }
-      }
-    )
+    toast.success('수고하셨습니다!', { duration: 3000, icon: '🌸'})
     return
   }
 
