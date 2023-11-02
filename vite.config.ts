@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({ 
       // injectRegister: 'auto',
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png', 'maskable-icon-512x512.png'],
       manifest: {
         name: '경소고 버스 정보 시스템',
