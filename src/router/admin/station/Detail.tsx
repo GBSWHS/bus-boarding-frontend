@@ -4,10 +4,12 @@ import { BreadcrumbGroup, ContentLayout, SpaceBetween, Button, Header, ColumnLay
 import { useParams } from "react-router-dom"
 import { Map, MapMarker } from 'react-kakao-maps-sdk'
 import { useState, useEffect, ReactNode } from "react"
+import { fetcher } from "../../../common/fetcher"
+import useSWR from "swr"
 
 function StationDetail() {
-  const studentName = 'test'
   const { stationId } = useParams()
+  const { data, error, isLoading } = useSWR(`/api/station/` + stationId + '/', fetcher)
   const [map, setMap] = useState<kakao.maps.Map>()
   const [marker, setMarker] = useState<ReactNode>()
 
@@ -15,7 +17,7 @@ function StationDetail() {
     if (!map) return
     const ps = new kakao.maps.services.Places()
 
-    ps.keywordSearch("경상북도 칠곡군 석적읍 석적로 955-19", (data, status) => {
+    ps.keywordSearch(data.location, (data, status) => {
       if (status === kakao.maps.services.Status.OK) {
         if (data.length === 0) return
         const place = data[0]
@@ -28,7 +30,10 @@ function StationDetail() {
         )
       }
     })
-  }, [map])
+  }, [map, data])
+
+  if (isLoading) return <CustomAppLayout contentType="table" />
+  if (error) return <CustomAppLayout contentType="table" />
 
   return (
     <>
@@ -47,7 +52,7 @@ function StationDetail() {
                   </SpaceBetween>
                 }
               >
-                {studentName} 정류장 정보
+                {data} 정류장 정보
               </Header>
             }
           >

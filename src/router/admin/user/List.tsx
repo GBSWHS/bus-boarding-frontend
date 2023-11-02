@@ -1,17 +1,22 @@
 import "@cloudscape-design/global-styles/index.css"
 import { CustomAppLayout } from "../../../components/admin/CustomLayout"
 import { BreadcrumbGroup, Button, Flashbar, TableProps, Modal, Box, SpaceBetween, Alert, ColumnLayout, Input, FormField } from "@cloudscape-design/components"
-import UserType from "../../../interfaces/UserType"
 import CustomTable from "../../../components/admin/CustomTable"
 import { Link } from "react-router-dom"
 import { FormEvent, useEffect, useState } from "react"
 import { PropertyFilterProperty } from "@cloudscape-design/collection-hooks"
 import UserListType from "../../../interfaces/UserListType"
 import useNotifications from "../../../hooks/useNotifications"
+import useSWR from "swr"
+import { fetcher } from "../../../common/fetcher"
+import BusType from "../../../interfaces/BusType"
+import StationType from "../../../interfaces/StationListType"
+
+interface BusResponseType { id: number, student_id: string, name: string, phone_number: string, boarding_bus: BusType, destination_stop: StationType }
 
 const COLUMN_DEFINATIONS: TableProps.ColumnDefinition<UserListType>[] = [
   {
-    id: 'studentId',
+    id: 'student_id',
     header: '학번',
     cell: item => <Link to={`/admin/user/${item.id}`}>{item.studentId}</Link>,
     isRowHeader: true,
@@ -32,13 +37,13 @@ const COLUMN_DEFINATIONS: TableProps.ColumnDefinition<UserListType>[] = [
   {
     id: 'bus',
     header: '탑승 버스',
-    cell: item => <Link to={`/admin/bus/${item.busId}`}>{item.bus}</Link>,
+    cell: item => item.busId ? <Link to={`/admin/bus/${item.busId}`}>{item.bus}</Link> : '미탑승',
     sortingField: 'bus'
   },
   {
     id: 'station',
     header: '하차 지점',
-    cell: item => <Link to={`/admin/station/${item.stationId}`}>{item.station}</Link>,
+    cell: item => item.stationId ? <Link to={`/admin/station/${item.stationId}`}>{item.station}</Link> : '미탑승',
     sortingField: 'station'
   }
 ]
@@ -76,61 +81,18 @@ const FILTERING_PROPERTIES: PropertyFilterProperty[] = [
   }
 ]
 
-const tempData: UserType[] = [
-  {
-    id: 1,
-    studentId: '3111',
-    name: "김철수",
-    phone_number: '01037290245',
-    boarding: {
-      id: 1,
-      name: '1번 버스',
-      description: '1번 버스입니다.'
-    },
-    destination: {
-      id: 2,
-      name: '석적읍',
-      location: '경상북도 칠곡군 석적읍 석적로 955-19 105동 901호',
-    }
-  },
-  {
-    id: 2,
-    studentId: '3112',
-    name: "김철수",
-    phone_number: '01037290245',
-    boarding: {
-      id: 1,
-      name: '1번 버스',
-      description: '1번 버스입니다.'
-    },
-    destination: {
-      id: 2,
-      name: '석적읍',
-      location: '경상북도 칠곡군 석적읍 석적로 955-19 105동 901호',
-    }
-  }
-]
 
-const data: UserListType[] = tempData.map(item => { 
-  return {
-    id: item.id,
-    studentId: item.studentId,
-    name: item.name,
-    phone_number: item.phone_number,
-    bus: item.boarding?.name ?? '',
-    busId: item.boarding?.id ?? '',
-    station: item.destination?.name ?? '',
-    stationId: item.destination?.id ?? ''
-  }
-}) as UserListType[]
 
 function UserList() {
+  const { data, isLoading, error } = useSWR('/api/user/', fetcher)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedItems, setSelectedItems] = useState<UserListType[]>([])
 
   const { clearFailed, notifications, notifyDeleted, notifyInProgress } = useNotifications({
     resourceName: '학생'
   })
+
+  if (error) return <CustomAppLayout contentType="table" />
 
   return (
     <>
@@ -142,7 +104,19 @@ function UserList() {
           <CustomTable
             COLUMN_DEFINATIONS={COLUMN_DEFINATIONS}
             FILTERING_PROPERTIES={FILTERING_PROPERTIES}
-            datas={data}
+            datas={data?.map((item: BusResponseType) => { 
+              return {
+                id: item.id,
+                studentId: item.student_id,
+                name: item.name,
+                phone_number: item.phone_number,
+                bus: item.boarding_bus?.name ?? '미탑승',
+                busId: item.boarding_bus?.id ?? null,
+                station: item.destination_stop?.name ?? '미탑승',
+                stationId: item.destination_stop?.id ?? null
+              }
+            }) ?? []}
+            loading={isLoading}
             selectedItems={selectedItems}
             onSelectionChange={event => setSelectedItems(event.detail.selectedItems)}
             onDelete={() => {}}

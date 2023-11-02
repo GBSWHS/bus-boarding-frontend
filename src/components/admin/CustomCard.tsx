@@ -41,9 +41,10 @@ interface CustomCardProps {
   selectedItems: any[]
   onSelectionChange: (event: NonCancelableCustomEvent<CardsProps.SelectionChangeDetail<any>>) => void
   onDelete: () => void,
+  loading: boolean
 }
 
-function CustomCard ({ titleText, resourceName, actionButtons, FILTERING_PROPERTIES, COLUMN_DEFINATIONS, datas, selectedItems, onSelectionChange }: CustomCardProps) {
+function CustomCard ({ titleText, resourceName, actionButtons, FILTERING_PROPERTIES, COLUMN_DEFINATIONS, datas, selectedItems, onSelectionChange, loading}: CustomCardProps) {
   const { items, actions, filteredItemsCount, collectionProps, paginationProps, propertyFilterProps } = useCollection(
     datas,
     {
@@ -66,6 +67,7 @@ function CustomCard ({ titleText, resourceName, actionButtons, FILTERING_PROPERT
       onSelectionChange={onSelectionChange}
       cardDefinition={COLUMN_DEFINATIONS}
       items={items} // add items prop
+      loading={loading}
       selectionType="multi"
       variant="full-page"
       stickyHeader={true}

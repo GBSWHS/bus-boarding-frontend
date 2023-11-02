@@ -4,10 +4,11 @@ import { BreadcrumbGroup, Button, Flashbar, Modal, Box, SpaceBetween, Alert, Col
 import { Link } from "react-router-dom"
 import { FormEvent, useEffect, useState } from "react"
 import { PropertyFilterProperty } from "@cloudscape-design/collection-hooks"
-import UserListType from "../../../interfaces/UserListType"
 import useNotifications from "../../../hooks/useNotifications"
 import CustomCard from "../../../components/admin/CustomCard"
 import StationListType from "../../../interfaces/StationListType"
+import useSWR from "swr"
+import { fetcher } from "../../../common/fetcher"
 
 const COLUMN_DEFINATIONS: CardsProps.CardDefinition<StationListType> = {
   header: item => <Link to={`/admin/station/` + item.id}>{item.name}</Link>,
@@ -35,21 +36,18 @@ const FILTERING_PROPERTIES: PropertyFilterProperty[] = [
   }
 ]
 
-const data: StationListType[] = Array(100).fill(0).map((_, index) => {
-  return {
-    id: index,
-    name: '정류장 ' + index,
-    location: '경상북도 칠곡군 석적읍 석적로 955-19'
-  }
-})
 
 function StationList() {
+  const { data, error, isLoading } = useSWR('/api/station/', fetcher)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [selectedItems, setSelectedItems] = useState<UserListType[]>([])
+  const [selectedItems, setSelectedItems] = useState<StationListType[]>([])
 
   const { clearFailed, notifications, notifyDeleted, notifyInProgress } = useNotifications({
     resourceName: '정류장'
   })
+
+  if (isLoading) return <CustomAppLayout contentType="table" />
+  if (error) return <CustomAppLayout contentType="table" />
 
   return (
     <>
@@ -61,7 +59,8 @@ function StationList() {
           <CustomCard
             COLUMN_DEFINATIONS={COLUMN_DEFINATIONS}
             FILTERING_PROPERTIES={FILTERING_PROPERTIES}
-            datas={data}
+            datas={data ?? []}
+            loading={isLoading}
             selectedItems={selectedItems}
             onSelectionChange={event => setSelectedItems(event.detail.selectedItems)}
             onDelete={() => {}}
@@ -109,7 +108,7 @@ function StationList() {
 }
 
 
-function DeleteModal({ selections, visible, onDiscard, onDelete }: { selections: UserListType[], visible: boolean, onDiscard: () => void, onDelete: () => void }) {
+function DeleteModal({ selections, visible, onDiscard, onDelete }: { selections: StationListType[], visible: boolean, onDiscard: () => void, onDelete: () => void }) {
   const deleteConsentText = 'confirm'
 
   const [deleteInputText, setDeleteInputText] = useState('')

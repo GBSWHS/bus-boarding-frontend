@@ -37,8 +37,8 @@ function App() {
       <Toaster position='top-center' />
       <Routes>
         <Route path='/' element={<Login />} />
-        <Route path='/manager' element={<Manager />} />
-        <Route path='/user' element={<User />} />
+        <Route path='/manager' element={<AuthProvider type='BUS_ADMIN'><Manager /></AuthProvider>} />
+        <Route path='/user' element={<AuthProvider type='USER'><User /></AuthProvider>} />
         
           <Route path='/admin'>
             <Route path='' element={<AuthProvider type='ADMINISTRATOR'><AdminIndex /></AuthProvider>} />

@@ -4,10 +4,11 @@ import { BreadcrumbGroup, Button, Flashbar, Modal, Box, SpaceBetween, Alert, Col
 import { Link } from "react-router-dom"
 import { FormEvent, useEffect, useState } from "react"
 import { PropertyFilterProperty } from "@cloudscape-design/collection-hooks"
-import UserListType from "../../../interfaces/UserListType"
 import useNotifications from "../../../hooks/useNotifications"
 import CustomCard from "../../../components/admin/CustomCard"
 import BusListType from "../../../interfaces/BusListType"
+import { fetcher } from "../../../common/fetcher"
+import useSWR from "swr"
 
 const COLUMN_DEFINATIONS: CardsProps.CardDefinition<BusListType> = {
   header: item => <Link to={`/admin/bus/` + item.id}>{item.name}</Link>,
@@ -46,28 +47,16 @@ const FILTERING_PROPERTIES: PropertyFilterProperty[] = [
 ]
 
 function BusList() {
-  const [data, setData] = useState<BusListType[]>([])
-
-  useEffect(() => {
-    (async () => {
-      const data = await fetch('/api/bus/', {
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem("access_token")
-        }
-      }).then((res) => res.json())
-
-      setData(data)
-
-    })()
-  }, []);
-
+  const { data, error, isLoading } = useSWR('/api/bus/', fetcher)
 
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [selectedItems, setSelectedItems] = useState<UserListType[]>([])
+  const [selectedItems, setSelectedItems] = useState<BusListType[]>([])
 
   const { clearFailed, notifications, notifyDeleted, notifyInProgress } = useNotifications({
     resourceName: '학생'
   })
+
+  if (error) return <CustomAppLayout contentType="table" />
 
   return (
     <>
@@ -79,7 +68,8 @@ function BusList() {
           <CustomCard
             COLUMN_DEFINATIONS={COLUMN_DEFINATIONS}
             FILTERING_PROPERTIES={FILTERING_PROPERTIES}
-            datas={data}
+            datas={data ?? []}
+            loading={isLoading}
             selectedItems={selectedItems}
             onSelectionChange={event => setSelectedItems(event.detail.selectedItems)}
             onDelete={() => {}}
@@ -127,7 +117,7 @@ function BusList() {
 }
 
 
-function DeleteModal({ selections, visible, onDiscard, onDelete }: { selections: UserListType[], visible: boolean, onDiscard: () => void, onDelete: () => void }) {
+function DeleteModal({ selections, visible, onDiscard, onDelete }: { selections: BusListType[], visible: boolean, onDiscard: () => void, onDelete: () => void }) {
   const deleteConsentText = 'confirm'
 
   const [deleteInputText, setDeleteInputText] = useState('')

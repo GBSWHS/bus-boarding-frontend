@@ -1,5 +1,5 @@
 
-export default interface StationListType {
+export default interface StationType {
   id: number
   name: string
   location: string

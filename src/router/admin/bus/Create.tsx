@@ -128,6 +128,7 @@ function BusCreate() {
                         <CustomTable
                           pageVariant="borderless"
                           datas={tempData}
+                          loading={false}
                           COLUMN_DEFINATIONS={COLUMN_DEFINATIONS}
                           FILTERING_PROPERTIES={FILTERING_PROPERTIES}
                           resourceName="학생"

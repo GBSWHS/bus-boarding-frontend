@@ -44,9 +44,10 @@ interface CustomTableProps {
   selectionType?: TableProps.SelectionType,
   pageVariant?: TableProps.Variant
   headerHidden?: boolean
+  loading: boolean
 }
 
-function CustomTable ({ headerHidden=false, selectionType='multi', pageVariant='full-page', titleText, resourceName, actionButtons, FILTERING_PROPERTIES, COLUMN_DEFINATIONS, datas, selectedItems, onSelectionChange }: CustomTableProps) {
+function CustomTable ({ headerHidden=false, selectionType='multi', pageVariant='full-page', titleText, resourceName, actionButtons, FILTERING_PROPERTIES, COLUMN_DEFINATIONS, datas, selectedItems, onSelectionChange, loading }: CustomTableProps) {
   const { items, actions, filteredItemsCount, collectionProps, paginationProps, propertyFilterProps } = useCollection(
     datas,
     {
@@ -70,6 +71,7 @@ function CustomTable ({ headerHidden=false, selectionType='multi', pageVariant='
       onSelectionChange={onSelectionChange}
       columnDefinitions={COLUMN_DEFINATIONS} // wrap COLUMN_DEFINATIONS in an array
       items={items} // add items prop
+      loading={loading}
       selectionType={selectionType}
       variant={pageVariant}
       stickyHeader={true}

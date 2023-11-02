@@ -178,6 +178,7 @@ function HistoryList() {
         </SplitPanel>}
         content={
           <CustomTable
+          loading={false}
             selectionType="single"
             COLUMN_DEFINATIONS={COLUMN_DEFINATIONS}
             FILTERING_PROPERTIES={FILTERING_PROPERTIES}

@@ -1,3 +1,5 @@
+import BusType from "./BusType"
+import StationType from "./StationListType"
 
 export default interface UserType {
   id: number
@@ -5,14 +7,6 @@ export default interface UserType {
   name: string
   phone_number: string
   admin?: boolean
-  boarding?: {
-    id: number
-    name: string
-    description: string
-  }
-  destination?: {
-    id: number
-    name: string
-    location: string
-  }
+  boarding_bus?: BusType
+  destination_stop?: StationType
 }
