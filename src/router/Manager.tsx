@@ -7,10 +7,11 @@ import { faBus, faHome, faUser, faXmark } from '@fortawesome/free-solid-svg-icon
 import Modal from 'react-modal'
 import useSWR from 'swr'
 import { fetcher } from '../common/fetcher'
-import { redirect } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 function Manager() {
-  if (!localStorage.getItem('access_token')) window.location.href = '/'
+  const navigate = useNavigate()
+  if (!localStorage.getItem('access_token')) navigate('/')
   const { data, error, isLoading } = useSWR('/api/user/me', fetcher)
   const [qrData, setQRData] = useState<string>('')
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
@@ -112,7 +113,7 @@ function Manager() {
 
   function errorHandling () {
     toast.error('서버 오류 발생')
-    redirect('/')
+    navigate('/')
   }
 
   if (isLoading) return <Container>Loading...</Container>

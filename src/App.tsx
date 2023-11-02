@@ -38,7 +38,7 @@ function App() {
         <Route path='/user' element={<AuthProvider type='USER'><User /></AuthProvider>} />
         
           <Route path='/admin'>
-            <Route path='' element={<Navigate replace to="/home" />} />
+            <Route path='' element={<Navigate replace to="/admin/bus" />} />
             
             <Route path='bus' element={<AuthProvider type="ADMINISTRATOR"><BusList /></AuthProvider>} />
             <Route path='bus/create' element={<AuthProvider type="ADMINISTRATOR"><BusCreate /></AuthProvider>} />

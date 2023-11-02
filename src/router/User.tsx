@@ -7,10 +7,12 @@ import { faBus, faHome } from '@fortawesome/free-solid-svg-icons'
 import useSWR from 'swr'
 import toast from 'react-hot-toast'
 import { fetcher } from '../common/fetcher'
+import { useNavigate } from 'react-router-dom'
 
 function User() {
-  if (!localStorage.getItem('access_token')) window.location.href = '/'
-  if (!localStorage.getItem('totp_secret')) window.location.href = '/'
+  const navigate = useNavigate()
+  if (!localStorage.getItem('access_token')) navigate('/')
+  if (!localStorage.getItem('totp_secret')) navigate('/')
   const { data, error, isLoading } = useSWR('/api/user/me', fetcher)
   const [otp, setOtp] = useState('')
   const [remainTime, setRemainTime] = useState('0')
@@ -23,18 +25,8 @@ function User() {
   }, [])
 
   function errorHandling () {
-    toast.error('서버 오류 발생',
-      {
-        duration: 3000,
-        icon: '❌',
-        style: {
-          borderRadius: '10px',
-          background: '#300',
-          color: '#fff',
-        }
-      }
-    )
-    window.location.href = '/'
+    toast.error('서버 오류 발생')
+    navigate('/')
   }
 
   if (isLoading) return <Container>Loading...</Container>
@@ -45,14 +37,14 @@ function User() {
 
   if (data.boarding_bus.name === null) {
     alert('버스 정보를 찾을 수 없습니다.')
-    window.location.href = '/'
+    navigate('/')
 
     return
   }
 
   if (data.destination_stop === null) {
     alert('도착 정류장 정보를 찾을 수 없습니다.')
-    window.location.href = '/'
+    navigate('/')
 
     return
   }

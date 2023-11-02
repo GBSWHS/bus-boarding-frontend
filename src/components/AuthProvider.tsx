@@ -1,9 +1,14 @@
 import { ReactNode, useEffect, useState } from "react"
 import toast from "react-hot-toast"
+import { useNavigate } from "react-router-dom"
 
 export default function AuthProvider ({ children, type } : {children: ReactNode, type: 'ADMINISTRATOR' | 'BUS_ADMIN' | 'USER'}) {
+  const navigate = useNavigate()
   const [renderChildren, setRenderChildren] = useState<boolean>(false)
-  if (!localStorage.getItem('access_token')) window.location.href = '/'
+  if (!localStorage.getItem('access_token')) {
+    toast.error('로그인이 필요합니다.')
+    navigate('/')
+  }
   
   const fetchUser = async () => {
     const accessToken = localStorage.getItem('access_token')
@@ -12,15 +17,14 @@ export default function AuthProvider ({ children, type } : {children: ReactNode,
     })
 
     if (user.status !== 200) {
-      localStorage.removeItem('access_token')
       toast.error('로그인이 필요합니다.')
-      window.location.href = '/'
+      navigate('/')
     }
 
     const userJson = await user.json()
     if (userJson.role !== type) {
       toast.error('잘못된 접근입니다.')
-      window.location.href = userJson.role === 'USER' ? '/user' : type === 'BUS_ADMIN' ? '/manager' : '/admin'
+      navigate('/')
     }
 
     setRenderChildren(true)
