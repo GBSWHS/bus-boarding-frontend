@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({ 
-      injectRegister: 'auto',
+      // injectRegister: 'auto',
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png', 'maskable-icon-512x512.png'],
       manifest: {
@@ -14,6 +14,11 @@ export default defineConfig({
         short_name: '경소GO',
         description: '경소고 버스 정보 시스템',
         theme_color: '#ffffff',
+        background_color: '#ffffff',
+        display: 'standalone',
+        scope: '/',
+        start_url: '/',
+        orientation: 'portrait-primary',
         icons: [
           {
             src: 'pwa-64x64.png',
