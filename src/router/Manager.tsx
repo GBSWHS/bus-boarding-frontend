@@ -149,14 +149,9 @@ function Manager() {
           <small>QR코드를 스캔해주세요.</small>
           <QrReader
             constraints={{ facingMode: 'environment' }}
-            onResult={(result, error) => {
+            onResult={(result) => {
               if (result) {
                 setQRData(result.getText())
-              }
-
-              if (error) {
-                if (error.name === 'e2') return
-                toast.error('QR 코드를 인식하지 못했습니다.')
               }
             }}
             videoStyle={{ position: 'static', objectFit: 'cover', borderRadius: '5px', height: '100%' }}
