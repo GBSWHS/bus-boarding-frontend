@@ -47,7 +47,7 @@ const FILTERING_PROPERTIES: PropertyFilterProperty[] = [
 ]
 
 function BusList() {
-  const { data, error, isLoading } = useSWR('/api/bus/', fetcher)
+  const { data, error, isLoading } = useSWR('/api/bus', fetcher)
 
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedItems, setSelectedItems] = useState<BusListType[]>([])

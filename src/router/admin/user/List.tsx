@@ -84,7 +84,7 @@ const FILTERING_PROPERTIES: PropertyFilterProperty[] = [
 
 
 function UserList() {
-  const { data, isLoading, error } = useSWR('/api/user/', fetcher)
+  const { data, isLoading, error } = useSWR('/api/user', fetcher)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedItems, setSelectedItems] = useState<UserListType[]>([])
 
