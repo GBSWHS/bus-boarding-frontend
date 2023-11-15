@@ -88,8 +88,7 @@ function Manager() {
 
     const response = await fetch('/api/boarding', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('access_token') ?? ''}`
-} },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('access_token') ?? ''}` },
       body: JSON.stringify({
         user_otp: data
       })
